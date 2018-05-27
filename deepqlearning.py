@@ -26,7 +26,7 @@ conv_kernel_sizes = [(8,8), (4,4), (3,3)]
 conv_strides = [4, 2, 1]
 conv_paddings = ["SAME"] * 3 
 conv_activation = [tf.nn.relu] * 3
-n_hidden_in = 64 * 12 * 10  # conv3 has 64 maps of 11x10 each
+n_hidden_in = 64 * 12 * 10  # conv3 has 64 maps of 12x10 each
 n_hidden = 512
 hidden_activation = tf.nn.relu
 n_outputs = env.action_space.n  # 18 discrete actions are available
@@ -186,7 +186,7 @@ def play(percent):
             save_animation(video, name)
             break
 
-record_first_time = True
+record_first_time = False
 
 with tf.Session() as sess:
     if os.path.isfile(checkpoint_path + ".index"):
@@ -226,7 +226,7 @@ with tf.Session() as sess:
         replay_memory.append((state, action, reward, next_state, 1.0 - done))
         state = next_state
 
-        # Compute statistics for tracking progress (not shown in the book)
+        # Compute statistics for tracking progress
         total_max_q += q_values.max()
         game_length += 1
         if done:
@@ -244,7 +244,6 @@ with tf.Session() as sess:
             feed_dict={X_state: X_next_state_val})
         max_next_q_values = np.max(next_q_values, axis=1, keepdims=True)
         y_val = rewards + continues * discount_rate * max_next_q_values
-
         # Train the online DQN
         _, loss_val = sess.run([training_op, loss], feed_dict={
             X_state: X_state_val, X_action: X_action_val, y: y_val})
